@@ -1,0 +1,18 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# runtime artifacts
+state.db
+state.db-wal
+state.db-shm
+status.json
+logs/
+runtime/
+.auth/
+
+# editor
+.vscode/
+.idea/
+.DS_Store

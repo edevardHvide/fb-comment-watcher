@@ -1,0 +1,7 @@
+post_url: ""
+keywords: []
+message_template: |
+  Hi! Thanks for your comment — here's the info you asked about.
+poll_seconds: 15
+poll_jitter_seconds: 3
+dry_run: true
