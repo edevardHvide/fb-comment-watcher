@@ -9,7 +9,9 @@ You don't need to be technical. You just need to follow each step in order. If s
 - Your Claude account (the one you used to sign up at claude.com)
 - Your Facebook login (email/phone + password, plus your phone if you have 2-factor auth)
 - About 30 minutes for the first-time setup
-- The folder for this project, somewhere on your Mac (e.g. on your Desktop). The person who shared this with you should have given it to you as a folder named `fb-comment-watcher`. If you don't have it yet, ask them.
+- An internet connection (to download things during setup)
+
+That's it. The project itself is open-source and lives on GitHub at **https://github.com/edevardHvide/fb-comment-watcher** — Claude will download it for you in Part 1.
 
 > ⚠️ **Important honest warning before you start.** Facebook does not officially allow tools like this one. In rare cases, accounts that automate actions can get a warning, get temporarily locked, or get banned. The safest way to use this is in **Dry-run mode** at first, which we'll set up below — Dry-run mode watches comments but does **not** send any messages.
 
@@ -29,23 +31,24 @@ We need three small things installed on your Mac. The easiest way is to let **Cl
 
 If your Mac says "Claude can't be opened because it's from an unidentified developer", right-click (or Control-click) the app and choose **Open** — that bypasses the warning.
 
-### Step 1.2 — Open the project folder in Claude Code
+### Step 1.2 — Open Claude Code in any folder
 
-1. Find the `fb-comment-watcher` folder on your Mac (probably on your Desktop, in your Downloads, or wherever the person who shared this with you put it).
-2. In Claude Code, click **File → Open Folder…** and select the `fb-comment-watcher` folder.
+The first time you launch Claude Code, you'll be asked to pick a folder to "open". Pick your **Desktop** (or any folder you like — it doesn't matter for now, Claude will create the project folder inside it in the next step).
 
-Claude Code is now "looking at" your project. From here on, **the chat box at the bottom is where you talk to Claude**. You type in plain English and press Enter.
+From here on, **the chat box at the bottom of Claude Code is where you talk to Claude**. You type in plain English and press Enter.
 
-### Step 1.3 — Let Claude install everything
+### Step 1.3 — Let Claude download and set up the project
 
 Copy the entire block below. Paste it into the Claude Code chat box and press Enter:
 
-> Please set up this project on my Mac for the first time. I'm not technical. I need you to:
+> Please set up the fb-comment-watcher project on my Mac for the first time. I'm not technical. I need you to:
 > 1. Install Homebrew if it isn't installed.
-> 2. Install `uv` (a Python tool) using Homebrew.
-> 3. Run `uv sync` in this folder to install all the Python packages this project needs.
-> 4. Run `uv run playwright install chromium` to install the special browser this project uses.
-> 5. When you're done, tell me whether everything succeeded and what to do next.
+> 2. Install `git` and `uv` using Homebrew.
+> 3. Clone the repository **https://github.com/edevardHvide/fb-comment-watcher** into the current folder.
+> 4. Move into the cloned `fb-comment-watcher` folder.
+> 5. Run `uv sync` to install all the Python packages.
+> 6. Run `uv run playwright install chromium` to install the browser the watcher uses.
+> 7. When you're done, tell me whether everything succeeded and where the project folder ended up.
 >
 > If macOS asks for my password during Homebrew installation, I'll type it in — that's normal. Please pause and tell me what to type when needed.
 
@@ -55,6 +58,16 @@ Claude will work for a few minutes. It might:
 - Show a lot of text scrolling by → that's also normal, Claude is just installing things.
 
 When Claude says **"everything succeeded"** or similar, you're done with Part 1. 🎉
+
+> 💡 **Where did the project go?** Whatever folder you opened Claude Code in (e.g. Desktop), there should now be a `fb-comment-watcher` folder inside it. That's your project. Claude will continue working from there for the rest of this guide — you don't need to do anything special.
+
+### Step 1.4 — Make sure Claude is "in" the project folder
+
+Tell Claude:
+
+> From now on, work inside the `fb-comment-watcher` folder we just downloaded. Always run commands from there.
+
+(This is just to make sure Claude doesn't accidentally run things in the wrong place later.)
 
 ---
 
