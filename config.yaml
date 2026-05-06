@@ -1,7 +1,11 @@
 post_url: https://www.facebook.com/share/p/1B3AwkFdER/
 keywords:
 - selger
-message_template: Hi! Thanks for your comment — here's the info you asked about.
+exclude_keywords:
+- Carls
+message_template: Kjøper gjerne!
+reply_enabled: true
+reply_template: Hei, kjøper!
 poll_seconds: 15
 poll_jitter_seconds: 3
 dry_run: false

@@ -133,9 +133,25 @@ def main(argv: list[str] | None = None) -> int:
                         for c in comments:
                             kw = matcher.matches(c.text, cfg.keywords, cfg.exclude_keywords)
                             if not kw:
+                                log.info(
+                                    "no-match: %s (%s) text=%r",
+                                    c.commenter_name, c.commenter_id, c.text[:120],
+                                )
                                 continue
-                            if state.was_messaged(db, cfg.post_url, c.commenter_id):
+                            row = db.execute(
+                                "SELECT status FROM messaged WHERE post_url=? AND commenter_id=?",
+                                (cfg.post_url, c.commenter_id),
+                            ).fetchone()
+                            if row is not None and row["status"] != "dry_run":
+                                log.info(
+                                    "skip: %s (%s) — already in db status=%s — text=%r",
+                                    c.commenter_name, c.commenter_id, row["status"], c.text[:120],
+                                )
                                 continue
+                            log.info(
+                                "match: %s (%s) — kw=%r — text=%r",
+                                c.commenter_name, c.commenter_id, kw, c.text[:120],
+                            )
                             st.matches += 1
                             if dry:
                                 log.info(
