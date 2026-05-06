@@ -36,9 +36,17 @@ Refresh the **Auth** page in the dashboard — it should show ✅ session presen
 
 On the **Config** page:
 - Paste the URL of the post to monitor.
-- Add keywords (one per line). A comment containing any keyword (case-insensitive) triggers a DM.
-- Set the message template.
+- **Keywords** (one per line). A comment containing any keyword (case-insensitive substring) triggers a DM.
+- **Exclude keywords** (one per line). If a comment contains any of these, it's skipped — even if it matches a keyword.
+- **Message template** — text sent verbatim as the Messenger DM.
+- **Public reply** (optional, opt-in toggle) — when ON, the watcher also posts a public reply to the matching comment, attempting to @-tag the commenter. Use `{name}` in the reply template; it's substituted with the commenter's name when the @-tag autocomplete doesn't appear.
 - Keep **dry-run** ON for the first day until you trust the matcher.
+
+## How matching works
+
+For every poll the watcher compares each visible comment against the rules above and acts on it once. There's a **baseline** captured the moment the watcher starts: every comment already on the post is recorded as `pre_existing` and will never be DM'd, even if it matches a keyword. Only comments that arrive **after** start are eligible.
+
+A commenter is also dedup'd permanently after any send attempt — `sent`, `blocked`, or `error` all block future retries to the same person on the same post. Only `dry_run` rows leave a person eligible for a real send later (so flipping dry-run off works).
 
 ## Run the watcher
 
@@ -47,18 +55,34 @@ On the **Dashboard** page:
 - Watch KPIs and the live log tail.
 - Comments + outcomes appear on the **Activity** page.
 
+Per-poll log lines tell you exactly what happened to each comment:
+- `no-match: <name> (<id>) text=...` — keyword didn't match (or was excluded)
+- `skip: <name> (<id>) — already in db status=...` — already DM'd / pre-existing
+- `match: <name> (<id>) — kw=...` — about to send
+
 ## Stop / restart
 
 - Click ⏹ Stop watcher in the UI.
 - The Streamlit app and the watcher are independent — closing the browser does not kill the watcher.
+
+## Re-testing against yourself
+
+Sending a DM to yourself is allowed (no self-skip), but after it succeeds your row becomes `sent` and you'll be permanently dedup'd on that post. To re-test:
+
+```bash
+sqlite3 state.db "DELETE FROM messaged WHERE commenter_id='<your_fb_user_id>'"
+```
+
+Then restart the watcher and post a fresh matching comment.
 
 ## Files
 
 - `state.db` — SQLite, dedup of (post, commenter).
 - `status.json` — watcher heartbeat, written every poll.
 - `logs/watcher.log` — rotating log file.
+- `logs/debug/` — PNG + HTML snapshots whenever the scraper, sender, or replier hits an unexpected DOM state.
 - `runtime/watcher.pid` — PID of running watcher.
-- `.auth/storage_state.json` — Playwright session cookies (chmod 600).
+- `.auth/storage_state.json` — Playwright session cookies, chmod 600.
 
 ## Tests
 

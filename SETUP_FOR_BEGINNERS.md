@@ -156,9 +156,21 @@ yes please
 
 A comment will trigger a DM if it contains **any** of these (case doesn't matter — "Interested" matches "interested").
 
-### Step 4.4 — Write your message
+### Step 4.4 — (Optional) Add exclude keywords
 
-In the **Message template** box, type the message you want to send. Example:
+In the **Exclude keywords** box, list words that should *block* a match. If a comment contains **any** of these, it's skipped — even if it also matches one of your keywords. Useful for things you want to ignore:
+
+```
+joking
+just kidding
+spam
+```
+
+Leave this empty if you don't need it.
+
+### Step 4.5 — Write your DM
+
+In the **Message template** box, type the Messenger DM you want to send. Example:
 
 ```
 Hi! Thanks for your comment — here's the info you asked about:
@@ -168,11 +180,23 @@ Hi! Thanks for your comment — here's the info you asked about:
 Talk soon!
 ```
 
-### Step 4.5 — Important: leave Dry-run ON for the first day
+### Step 4.6 — (Optional) Reply on the post too
 
-Make sure the **Dry-run mode** toggle is **ON** (blue). In Dry-run mode, the watcher pretends it sent messages and logs everything, but **doesn't actually send any DMs**. This lets you confirm the keywords work as expected before any real messages go out.
+Below the DM template there's a **"Also reply to the comment publicly"** toggle. When ON, the watcher will also post a public reply to the matching comment, attempting to **@-tag** the commenter (so they get notified). It tries to use Facebook's @-mention popup; if that doesn't appear, it falls back to plain text including the person's name.
 
-### Step 4.6 — Save
+If you turn this on, fill in the **Reply template** field. Use `{name}` where you want the person's name inserted in the fallback (the `{name}` is automatically removed when the @-tag works). Example:
+
+```
+Hei {name}, sjekker DM 👋
+```
+
+Leave the toggle OFF if you only want DMs and no public reply.
+
+### Step 4.7 — Important: leave Dry-run ON for the first day
+
+Make sure the **Dry-run mode** toggle is **ON** (blue). In Dry-run mode, the watcher pretends it sent messages and logs everything, but **doesn't actually send any DMs or replies**. This lets you confirm the keywords work as expected before any real messages go out.
+
+### Step 4.8 — Save
 
 Click the blue **💾 Save** button. You should see a small "Saved" notification.
 
@@ -193,6 +217,10 @@ A new Chromium window will pop up. **Don't close this window!** This is the watc
 Within a few seconds, the dashboard will switch to **● Running** and the **Polls** counter will start ticking up.
 
 ### Step 5.2 — Test it (recommended)
+
+> 💡 **Important rule to know first:** when the watcher starts, it records every comment that's **already on the post** as "pre-existing" and will never DM those people. Only comments posted **after** you click Start are eligible. So to test, you need a *new* comment posted after the watcher is running.
+>
+> The watcher also won't DM the same person twice on the same post — so if you've already DM'd yourself in a previous test, you need to either use a different commenter or clear your row from `state.db` (see "Re-testing against yourself" further down).
 
 Ask a friend to leave a comment on your post containing one of your keywords. Or use a second Facebook account if you have one. Within ~30 seconds:
 
@@ -251,6 +279,12 @@ Go to **⚙️ Config**, paste the new URL, click Save. Stop and restart the wat
 
 ### "I want to delete everything and start over"
 Ask Claude: *"Please reset this project — delete state.db, status.json, .auth/, logs/, and runtime/."*
+
+### "I commented but the watcher isn't messaging me"
+Three common reasons (in order of likelihood):
+1. **Your comment was already on the post when the watcher started.** Fix: delete the comment, post a brand-new one *after* the watcher is running.
+2. **You've already been DM'd before.** The watcher won't double-message anyone on the same post. Ask Claude: *"Please clear my row from state.db so I can test again."*
+3. **Your comment doesn't actually contain the keyword.** Open the **Live log** in the dashboard — every poll lists each comment as `match:` or `no-match:` with the comment text. If yours says `no-match`, double-check spelling.
 
 ### "Something else broke"
 The first thing to try with anything you don't understand: **just paste the error into the Claude Code chat and ask Claude to fix it**. Claude knows this whole project and can usually figure things out.
