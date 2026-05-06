@@ -29,6 +29,13 @@ with st.form("config_form", clear_on_submit=False):
         help="A comment containing ANY of these (case-insensitive substring) triggers a DM.",
     )
 
+    exclude_text = st.text_area(
+        "Exclude keywords (one per line)",
+        value="\n".join(cfg.exclude_keywords),
+        height=100,
+        help="If a comment contains ANY of these, it is skipped — even if it matches an include keyword.",
+    )
+
     template = st.text_area(
         "Message template",
         value=cfg.message_template,
@@ -67,9 +74,11 @@ with st.form("config_form", clear_on_submit=False):
 
 if submitted:
     keywords = [k.strip() for k in kw_text.splitlines() if k.strip()]
+    exclude_keywords = [k.strip() for k in exclude_text.splitlines() if k.strip()]
     new_cfg = cfgmod.Config(
         post_url=post_url.strip(),
         keywords=keywords,
+        exclude_keywords=exclude_keywords,
         message_template=template.strip(),
         poll_seconds=int(poll_seconds),
         poll_jitter_seconds=int(poll_jitter),
@@ -88,6 +97,7 @@ cur = cfgmod.load()
 st.code(
     f"post_url: {cur.post_url}\n"
     f"keywords: {cur.keywords}\n"
+    f"exclude_keywords: {cur.exclude_keywords}\n"
     f"poll_seconds: {cur.poll_seconds} (± {cur.poll_jitter_seconds})\n"
     f"dry_run: {cur.dry_run}\n"
     f"message_template: |\n  {cur.message_template[:200]}",

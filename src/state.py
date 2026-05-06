@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterator, Literal
 
-Status = Literal["sent", "dry_run", "blocked", "error"]
+Status = Literal["sent", "dry_run", "blocked", "error", "pre_existing"]
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS messaged (
@@ -53,14 +53,60 @@ def connect(db_path: Path, read_only: bool = False) -> Iterator[sqlite3.Connecti
 
 
 def was_messaged(conn: sqlite3.Connection, post_url: str, commenter_id: str) -> bool:
-    """True if we have already sent (live) a DM to this commenter for this post."""
+    """True if we should NOT (re)send to this commenter for this post.
+
+    Blocks:
+      - sent     — already DM'd successfully
+      - blocked  — recipient privacy refused; retrying won't help
+      - error    — attempted but failed; retrying risks spam if it half-succeeded
+      - pre_existing — comment was present at watcher start, treat as out of scope
+
+    Allows (returns False):
+      - no row at all (new commenter)
+      - dry_run (so flipping --live can DM them for real)
+    """
     row = conn.execute(
         "SELECT status FROM messaged WHERE post_url = ? AND commenter_id = ?",
         (post_url, commenter_id),
     ).fetchone()
     if row is None:
         return False
-    return row["status"] == "sent"
+    return row["status"] != "dry_run"
+
+
+def baseline(
+    conn: sqlite3.Connection,
+    *,
+    post_url: str,
+    commenter_id: str,
+    commenter_name: str,
+    comment_id: str | None,
+    comment_text: str,
+    profile_url: str,
+) -> bool:
+    """Mark a commenter as pre-existing at watcher start.
+
+    INSERT OR IGNORE — never overwrites an existing row, so dry_run/sent rows
+    from prior sessions are preserved. Returns True if a row was inserted.
+    """
+    cur = conn.execute(
+        """
+        INSERT OR IGNORE INTO messaged
+            (post_url, commenter_id, commenter_name, comment_id, comment_text,
+             profile_url, keyword, sent_at, status)
+        VALUES (?, ?, ?, ?, ?, ?, NULL, ?, 'pre_existing')
+        """,
+        (
+            post_url,
+            commenter_id,
+            commenter_name,
+            comment_id,
+            comment_text,
+            profile_url,
+            datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        ),
+    )
+    return cur.rowcount > 0
 
 
 def mark(

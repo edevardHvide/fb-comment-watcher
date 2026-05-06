@@ -104,11 +104,34 @@ def main(argv: list[str] | None = None) -> int:
             status.write(paths.STATUS_FILE, st)
 
             with state.connect(paths.STATE_DB) as db:
+                # Baseline: mark every comment present at startup as pre_existing
+                # so we only DM commenters whose comments arrive AFTER this point.
+                try:
+                    baseline_comments = watcher.scrape(page, cfg.post_url)
+                    inserted = 0
+                    for c in baseline_comments:
+                        if state.baseline(
+                            db,
+                            post_url=cfg.post_url,
+                            commenter_id=c.commenter_id,
+                            commenter_name=c.commenter_name,
+                            comment_id=c.comment_id,
+                            comment_text=c.text,
+                            profile_url=c.profile_url,
+                        ):
+                            inserted += 1
+                    log.info(
+                        "baseline complete | %d comments visible | %d new entries (rest already known)",
+                        len(baseline_comments), inserted,
+                    )
+                except Exception as e:
+                    log.warning("baseline scrape failed (will retry on first poll): %s", e)
+
                 while _running:
                     try:
                         comments = watcher.scrape(page, cfg.post_url)
                         for c in comments:
-                            kw = matcher.matches(c.text, cfg.keywords)
+                            kw = matcher.matches(c.text, cfg.keywords, cfg.exclude_keywords)
                             if not kw:
                                 continue
                             if state.was_messaged(db, cfg.post_url, c.commenter_id):

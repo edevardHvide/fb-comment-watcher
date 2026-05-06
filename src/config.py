@@ -12,6 +12,7 @@ from . import paths
 class Config:
     post_url: str = ""
     keywords: list[str] = field(default_factory=list)
+    exclude_keywords: list[str] = field(default_factory=list)
     message_template: str = ""
     poll_seconds: int = 15
     poll_jitter_seconds: int = 3
@@ -48,9 +49,13 @@ def load(path: Path = paths.CONFIG_FILE) -> Config:
     keywords = raw.get("keywords") or []
     if isinstance(keywords, str):
         keywords = [k.strip() for k in keywords.splitlines() if k.strip()]
+    exclude = raw.get("exclude_keywords") or []
+    if isinstance(exclude, str):
+        exclude = [k.strip() for k in exclude.splitlines() if k.strip()]
     return Config(
         post_url=str(raw.get("post_url") or "").strip(),
         keywords=[str(k).strip() for k in keywords if str(k).strip()],
+        exclude_keywords=[str(k).strip() for k in exclude if str(k).strip()],
         message_template=str(raw.get("message_template") or "").strip(),
         poll_seconds=int(raw.get("poll_seconds") or 15),
         poll_jitter_seconds=int(raw.get("poll_jitter_seconds") or 3),
@@ -62,6 +67,7 @@ def save(cfg: Config, path: Path = paths.CONFIG_FILE) -> None:
     data = {
         "post_url": cfg.post_url,
         "keywords": list(cfg.keywords),
+        "exclude_keywords": list(cfg.exclude_keywords),
         "message_template": cfg.message_template,
         "poll_seconds": cfg.poll_seconds,
         "poll_jitter_seconds": cfg.poll_jitter_seconds,
