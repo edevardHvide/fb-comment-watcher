@@ -20,12 +20,17 @@ uv run streamlit run streamlit_app.py
 
 Open http://localhost:8501.
 
-## First-time login
+## First-time login (two-step)
 
-1. Go to the **Auth** page.
-2. Click "Launch FB login window" — a Chromium window opens.
-3. Log in manually (handles 2FA / captchas).
-4. Once you reach your feed, close the window. The session is saved to `.auth/storage_state.json`.
+The watcher needs an authenticated session on **both** `facebook.com` (to read comments) **and** `messenger.com` (to send DMs). Cross-domain SSO is not reliable, so we explicitly log in to both.
+
+1. Go to the **Auth** page in the dashboard.
+2. Click **"Launch FB login window"** — a Chromium window opens.
+3. **Step 1 — Facebook:** the window navigates to facebook.com. Log in manually (handles 2FA / captchas). Once you reach your feed, the auth tool detects the `c_user` cookie and continues automatically.
+4. **Step 2 — Messenger:** the same Chromium window navigates to messenger.com. If you're not auto-signed-in (typical on first run), log in there too. The tool detects messenger session cookies and saves the combined state.
+5. The window closes itself when both legs are complete. Session is saved to `.auth/storage_state.json`.
+
+Refresh the **Auth** page in the dashboard — it should show ✅ session present.
 
 ## Configure
 

@@ -89,9 +89,9 @@ You should see a page titled **💬 FB Comment Watcher** with a sidebar on the l
 
 ---
 
-## Part 3 — Log in to Facebook (one time)
+## Part 3 — Log in to Facebook AND Messenger (one time)
 
-The watcher uses your real Facebook session. We'll save it once so you don't have to log in again every time.
+The watcher needs to read comments on Facebook **and** send messages on Messenger. These are separate logins (Facebook and Messenger are technically different websites), so we'll do both in one go.
 
 ### Step 3.1 — Open the Auth page
 
@@ -101,21 +101,32 @@ In the dashboard sidebar, click **🔐 Auth**.
 
 Click the big blue button **🚀 Launch FB login window**.
 
-A new Chromium browser window will open showing facebook.com.
+A new Chromium browser window will open and navigate to **facebook.com**.
 
-### Step 3.3 — Log in normally
+### Step 3.3 — Log in to Facebook
 
 1. Type your Facebook email/phone and password.
 2. If Facebook asks for a 2-factor code, enter it from your phone.
 3. Wait until you see your Facebook home feed.
 
-The window will **close itself automatically** once it detects you're logged in. You don't need to do anything else.
+You don't need to close anything — once the tool sees you're logged in, it will **automatically navigate the same window to messenger.com**.
 
-### Step 3.4 — Confirm
+### Step 3.4 — Log in to Messenger
+
+The window now shows **messenger.com**.
+
+- If Messenger asks you to log in: enter your credentials again (Messenger uses the same Facebook account, so the same email/password).
+- If Messenger logs you in automatically: do nothing.
+
+Once you reach the Messenger inbox view, the tool detects the session and saves everything.
+
+The window will **close itself automatically** when both logins are complete.
+
+### Step 3.5 — Confirm
 
 Refresh the **🔐 Auth** page in your dashboard browser. It should now show ✅ **Session present**.
 
-You're logged in. You won't have to do this again unless your Facebook session expires (usually weeks or months from now).
+You're logged in to both. You won't have to do this again unless one of the sessions expires (usually weeks or months from now).
 
 ---
 
