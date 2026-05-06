@@ -20,7 +20,7 @@ from logging.handlers import RotatingFileHandler
 from playwright.sync_api import sync_playwright
 
 from . import config as cfgmod
-from . import matcher, messenger, paths, state, status, watcher
+from . import matcher, messenger, paths, reply as replymod, state, status, watcher
 
 log = logging.getLogger("watcher")
 
@@ -154,6 +154,18 @@ def main(argv: list[str] | None = None) -> int:
                                     status="dry_run",
                                 )
                             else:
+                                if cfg.reply_enabled and cfg.reply_template.strip():
+                                    try:
+                                        rep_outcome = replymod.reply(
+                                            page,
+                                            cfg.post_url,
+                                            c.commenter_id,
+                                            c.commenter_name,
+                                            cfg.reply_template,
+                                        )
+                                        log.info("reply outcome=%s for %s", rep_outcome, c.commenter_id)
+                                    except Exception as e:
+                                        log.warning("reply errored for %s: %s", c.commenter_id, e)
                                 outcome = messenger.send(
                                     page, c.commenter_id, cfg.message_template
                                 )

@@ -43,6 +43,21 @@ with st.form("config_form", clear_on_submit=False):
         help="Sent verbatim. No placeholders in v1.",
     )
 
+    st.markdown("#### Public reply (optional)")
+    reply_enabled = st.toggle(
+        "Also reply to the comment publicly",
+        value=cfg.reply_enabled,
+        help="When ON: post a reply to the matching comment, attempting to @-tag the commenter. Falls back to plain text including their name if FB's autocomplete popup doesn't appear.",
+    )
+    reply_template = st.text_area(
+        "Reply template",
+        value=cfg.reply_template,
+        height=100,
+        placeholder="Hei {name}, sjekk DM 👋",
+        help="Use {name} to insert the commenter's name when @-tagging fails. The tag itself is inserted automatically when it works.",
+        disabled=not reply_enabled,
+    )
+
     c1, c2, c3 = st.columns(3)
     with c1:
         poll_seconds = st.number_input(
@@ -80,6 +95,8 @@ if submitted:
         keywords=keywords,
         exclude_keywords=exclude_keywords,
         message_template=template.strip(),
+        reply_enabled=bool(reply_enabled),
+        reply_template=reply_template.strip(),
         poll_seconds=int(poll_seconds),
         poll_jitter_seconds=int(poll_jitter),
         dry_run=bool(dry_run),
@@ -98,8 +115,10 @@ st.code(
     f"post_url: {cur.post_url}\n"
     f"keywords: {cur.keywords}\n"
     f"exclude_keywords: {cur.exclude_keywords}\n"
+    f"reply_enabled: {cur.reply_enabled}\n"
     f"poll_seconds: {cur.poll_seconds} (± {cur.poll_jitter_seconds})\n"
     f"dry_run: {cur.dry_run}\n"
-    f"message_template: |\n  {cur.message_template[:200]}",
+    f"message_template: |\n  {cur.message_template[:200]}\n"
+    f"reply_template: |\n  {cur.reply_template[:200]}",
     language="yaml",
 )
